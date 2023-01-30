@@ -22,6 +22,12 @@ export class ClienteTCP {
 
     this.socket = new net.Socket();
 
+    this.socket.on("error", (error) => {
+      if (error.code != "ECONNREFUSED") {
+        console.log(`Ocurrio un error: ${error}`);
+      }
+    });
+
     this.socket.connect(puerto, this.ip, () => {
       console.log(`Conectado a ${puerto}`);
     });
