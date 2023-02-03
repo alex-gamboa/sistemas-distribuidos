@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+
+<head>
+	<meta name="viewport" content=
+		"width=device-width, initial-scale=1.0">
+
+    <style>
+      /* CSS Code */
+      /* Heading */
+      h1 {
+        color: black;
+        font-size: 45px;
+      }
+    
+      /* 3*3 Grid */
+      #b1, #b2, #b3, #b4, #b5,
+      #b6, #b7, #b8, #b9 {
+        width: 80px;
+        height: 52px;
+        margin: auto;
+        border: 1px solid gray;
+        border-radius: 6px;
+        font-size: 30px;
+        text-align: center;
+      }
+    
+      /* Reset Button */
+      #but {
+        box-sizing: border-box;
+        width: 95px;
+        height: 40px;
+        border: 1px solid dodgerblue;
+        margin: auto;
+        border-radius: 4px;
+        font-family: Verdana,
+          Geneva, Tahoma, sans-serif;
+    
+        background-color: dodgerblue;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+      }
+    
+      /* Player turn space */
+      #print {
+        font-family: Verdana,
+          Geneva, Tahoma, sans-serif;
+    
+        color: dodgerblue;
+        font-size: 20px;
+      }
+    
+      /* Main Container */
+      #main {
+        text-align: center;
+      }
+    
+      /* Game Instruction Text */
+      #ins {
+        font-family: Verdana,
+          Geneva, Tahoma, sans-serif;
+          
+        color: dodgerblue;
+        font-size: 17px;
+      }
+    </style>
+    
+</head>
+
+<body>
+	<div id="main">
+		<h1>Tic Tac Toe</h1>
+
+		<p id="ins">Bienvenido!! Presiona el boton iniciar juego para buscar un contrincante
+		</p>
+
+
+		<br><br>
+		<!-- 3*3 grid of Boxes -->
+		<input type="text" id="b1" onclick="seleccionarCasilla(1)" readonly>
+		<input type="text" id="b2" onclick="seleccionarCasilla(2)" readonly>
+		<input type="text" id="b3" onclick="seleccionarCasilla(3)" readonly>
+
+		<br><br>
+
+		<input type="text" id="b4" onclick="seleccionarCasilla(4)" readonly>			
+		<input type="text" id="b5" onclick="seleccionarCasilla(5)" readonly>
+		<input type="text" id="b6" onclick="seleccionarCasilla(6)" readonly>
+
+		<br><br>
+
+		<input type="text" id="b7" onclick="seleccionarCasilla(7)" readonly>
+		<input type="text" id="b8" onclick="seleccionarCasilla(8)" readonly>
+		<input type="text" id="b9" onclick="seleccionarCasilla(9)" readonly>
+
+		<!-- Grid end here -->
+		<br><br><br>
+		<!-- Button to reset game -->
+		<button id="btnIniciarJuego" onclick="iniciarJuego()">
+			Iniciar Juego
+		</button>
+  
+
+
+		<br><br>
+		<!-- Space to show player turn -->
+		<p id="mensajes"></p>
+
+	</div>
+
+  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+  <script>
+    var socket = io();
+    var mensajes = document.getElementById('mensajes');
+
+    function seleccionarCasilla(casilla) {
+      borrarMensaje();
+      socket.emit('seleccionar_casilla', casilla);      
+    }
+
+    function iniciarJuego() {
+      borrarMensaje();
+      socket.emit('iniciar_juego', null);
+    }
+
+    function borrarMensaje() {
+      mensajes.innerHTML = "";
+    } 
+
+    socket.on('casilla_seleccionada', function(msg) {
+      document.getElementById('b' + msg.casilla.toString()).value = msg.simbolo;
+    });
+
+    socket.on('error', function(error) {
+      mensajes.innerHTML = error;
+    });
+
+    socket.on('juego_iniciado', function(jugadores) {
+
+        console.log("llegaron jugadores " + jugadores);
+
+      document.getElementById('ins').innerHTML = 
+        "<p>Juego Iniciado!, eres " + jugadores.jugador + ", tu contrincante es "
+          + jugadores.contrincante;
+    });
+
+    socket.on('ganador', function(ganador) {
+      mensajes.innerHTML = "Tenemos un Ganador!! : " + ganador + "  ... Inicia un nuevo juego!.";
+
+      for (let casilla = 1; casilla <= 9; casilla++) {
+        document.getElementById('b' + casilla.toString()).value = "";        
+      }
+    });
+  </script>
+</body>
+
+</html>
+
